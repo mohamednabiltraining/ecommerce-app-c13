@@ -14,9 +14,9 @@ import 'package:get_it/get_it.dart' as _i174;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:pretty_dio_logger/pretty_dio_logger.dart' as _i528;
 
+import '../api/WebServices.dart' as _i369;
 import '../api/datasource/CategoriesOnlineDataSourceImpl.dart' as _i428;
 import '../api/di.dart' as _i691;
-import '../api/WebServices.dart' as _i369;
 import '../data/dataSource/CategoriesOnlineDataSource.dart' as _i189;
 import '../data/repos/CategoriesRepoImpl.dart' as _i46;
 import '../domain/repos/CategoriesRepo.dart' as _i181;
