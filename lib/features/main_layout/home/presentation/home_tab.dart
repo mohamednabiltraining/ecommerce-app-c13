@@ -1,4 +1,7 @@
 import 'dart:async';
+
+import 'package:ecommerce_app/di/di.dart';
+import 'package:ecommerce_app/features/main_layout/home/presentation/home_view_model.dart';
 import 'package:ecommerce_app/features/main_layout/home/presentation/widgets/custom_category_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,6 +31,7 @@ class _HomeTabState extends State<HomeTab> {
   void initState() {
     super.initState();
     _startImageSwitching();
+    homeViewModel.getCategories();
   }
 
   void _startImageSwitching() {
@@ -43,6 +47,9 @@ class _HomeTabState extends State<HomeTab> {
     _timer.cancel();
     super.dispose();
   }
+
+  // field injection
+  var homeViewModel = getIt.get<HomeViewModel>();
 
   @override
   Widget build(BuildContext context) {

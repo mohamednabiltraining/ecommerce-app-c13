@@ -4,7 +4,7 @@ publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: ^3.3.4
+  sdk: ^3.5.2
 
 dependencies:
   cached_network_image:
@@ -19,11 +19,25 @@ dependencies:
   flutter_native_splash:
   readmore:
   smooth_page_indicator:
+  retrofit:
+  logger:  # for logging purpose
+  json_annotation:
+  dio:
+  # add injectable to your dependencies
+  injectable:
+  # add get_it
+  get_it:
+  pretty_dio_logger: ^1.4.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints:
+
+  injectable_generator:
+  retrofit_generator: '>=8.0.0 <10.0.0' # for Dart 3.3 use ^9.0.0
+  build_runner: ^2.3.3
+  json_serializable: ^6.8.0
 
 flutter:
   generate: true
