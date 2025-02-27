@@ -1,9 +1,16 @@
 import 'dart:async';
 
+import 'package:ecommerce_app/core/widget/MainErrorWidget.dart';
+import 'package:ecommerce_app/core/widget/MainLoadingWidget.dart';
+import 'package:ecommerce_app/core/widget/product_card.dart';
 import 'package:ecommerce_app/di/di.dart';
+import 'package:ecommerce_app/features/main_layout/home/presentation/HomeScreenState.dart';
 import 'package:ecommerce_app/features/main_layout/home/presentation/home_view_model.dart';
+import 'package:ecommerce_app/features/main_layout/home/presentation/widgets/HomeSection.dart';
+import 'package:ecommerce_app/features/main_layout/home/presentation/widgets/custom_brand_widget.dart';
 import 'package:ecommerce_app/features/main_layout/home/presentation/widgets/custom_category_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/resources/assets_manager.dart';
@@ -31,7 +38,7 @@ class _HomeTabState extends State<HomeTab> {
   void initState() {
     super.initState();
     _startImageSwitching();
-    homeViewModel.getCategories();
+    homeViewModel.loadHomePage();
   }
 
   void _startImageSwitching() {
@@ -54,73 +61,139 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          CustomAdsWidget(
-            adsImages: adsImages,
-            currentIndex: _currentIndex,
-            timer: _timer,
-          ),
-          Column(
-            children: [
-              CustomSectionBar(sectionNname: 'Categories', function: () {}),
-              SizedBox(
-                height: 270.h,
-                child: GridView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemBuilder: (context, index) {
-                    return const CustomCategoryWidget();
-                  },
-                  itemCount: 20,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                  ),
-                ),
-              ),
-              // SizedBox(height: 12.h),
-              // CustomSectionBar(sectionNname: 'Brands', function: () {}),
-              // SizedBox(
-              //   height: 270.h,
-              //   child: GridView.builder(
-              //     scrollDirection: Axis.horizontal,
-              //     itemBuilder: (context, index) {
-              //       return const CustomBrandWidget();
-              //     },
-              //     itemCount: 20,
-              //     gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              //       crossAxisCount: 2,
-              //     ),
-              //   ),
-              // ),
-              // CustomSectionBar(
-              //   sectionNname: 'Most Selling Products',
-              //   function: () {},
-              // ),
-              // SizedBox(
-              //   child: SizedBox(
-              //     height: 360.h,
-              //     child: ListView.builder(
-              //       scrollDirection: Axis.horizontal,
-              //       itemBuilder: (context, index) {
-              //         return const ProductCard(
-              //           title: "Nike Air Jordon",
-              //           description:
-              //               "Nike is a multinational corporation that designs, develops, and sells athletic footwear ,apparel, and accessories",
-              //           rating: 4.5,
-              //           price: 1100,
-              //           priceBeforeDiscound: 1500,
-              //           image: ImageAssets.categoryHomeImage,
-              //         );
-              //       },
-              //       itemCount: 20,
-              //     ),
-              //   ),
-              // ),
-              SizedBox(height: 12.h),
-            ],
-          )
-        ],
+      child: BlocConsumer<HomeViewModel, HomeScreenState>(
+        bloc: homeViewModel,
+        listener: (context, event) {
+          if (event is NavigateState) {
+            Navigator.pushNamed(context, event.route);
+          }
+        },
+        listenWhen: (previous, current) {
+          if (current is LoadingState) {
+            return true;
+          }
+          if (current is NavigateState) {
+            return true;
+          }
+          return false;
+        },
+        builder: (context, state) {
+          if (state is SuccessState) {
+            return BuildSuccessState(state);
+          }
+          if (state is LoadingState) {
+            return MainLoadingWidget(state.loadingMessage);
+          }
+          if (state is ErrorState) {
+            return MainErrorWidget(
+              message: state.errorMessage,
+              onTryAgain: () {
+                homeViewModel.loadHomePage();
+              },
+            );
+          }
+          return Container();
+        },
       ),
+    );
+  }
+
+  Widget BuildSuccessState(SuccessState state) {
+    return Column(
+      children: [
+        CustomAdsWidget(
+          adsImages: adsImages,
+          currentIndex: _currentIndex,
+          timer: _timer,
+        ),
+        Column(
+          children: [
+            state.categories != null
+                ? Homesection(
+                    mainSectionBuilder: Builder(
+                      builder: (context) {
+                        return SizedBox(
+                          height: 270.h,
+                          child: GridView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () {
+                                  homeViewModel.onCategoryClick(
+                                      state.categories![index]);
+                                },
+                                child: HomeCategoryItemWidget(
+                                    state.categories![index]),
+                              );
+                            },
+                            itemCount: state.categories?.length ?? 0,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    sectionTitle: "Categories",
+                    onViewAllPressed: () {},
+                  )
+                : Container(),
+            SizedBox(height: 12.h),
+            state.brands != null
+                ? Homesection(
+                    mainSectionBuilder: Builder(
+                      builder: (context) {
+                        return SizedBox(
+                          height: 270.h,
+                          child: GridView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return CustomBrandWidget(state.brands![index]);
+                            },
+                            itemCount: state.brands?.length ?? 0,
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    sectionTitle: "Brands",
+                    onViewAllPressed: () {},
+                  )
+                : Container(),
+            SizedBox(height: 12.h),
+            buildMostSellingSection(state),
+          ],
+        )
+      ],
+    );
+  }
+
+  Widget buildMostSellingSection(SuccessState state) {
+    return Column(
+      children: [
+        CustomSectionBar(
+          sectionNname: 'Most Selling Products',
+          function: () {},
+        ),
+        SizedBox(
+          child: SizedBox(
+            height: 360.h,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return ProductCard(
+                  state.products![index],
+                );
+              },
+              itemCount: state.products?.length ?? 0,
+            ),
+          ),
+        )
+      ],
     );
   }
 }
