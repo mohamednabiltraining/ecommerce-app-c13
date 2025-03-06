@@ -28,7 +28,7 @@ class HomeViewModel extends Cubit<HomeScreenState> {
 
   Future<void> _loadCategories() async {
     try {
-      var categories = await _getCategoriesUseCase.invoke();
+      var categories = await _getCategoriesUseCase();
       emit(_successState = _successState.copyWith(categories: categories));
     } on Exception catch (ex) {
       emit(ErrorState(exception: ex));

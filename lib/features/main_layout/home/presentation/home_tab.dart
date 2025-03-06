@@ -61,39 +61,42 @@ class _HomeTabState extends State<HomeTab> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: BlocConsumer<HomeViewModel, HomeScreenState>(
-        bloc: homeViewModel,
-        listener: (context, event) {
-          if (event is NavigateState) {
-            Navigator.pushNamed(context, event.route);
-          }
-        },
-        listenWhen: (previous, current) {
-          if (current is LoadingState) {
-            return true;
-          }
-          if (current is NavigateState) {
-            return true;
-          }
-          return false;
-        },
-        builder: (context, state) {
-          if (state is SuccessState) {
-            return BuildSuccessState(state);
-          }
-          if (state is LoadingState) {
-            return MainLoadingWidget(state.loadingMessage);
-          }
-          if (state is ErrorState) {
-            return MainErrorWidget(
-              message: state.errorMessage,
-              onTryAgain: () {
-                homeViewModel.loadHomePage();
-              },
-            );
-          }
-          return Container();
-        },
+      child: BlocProvider(
+        create: (context) => getIt.get<HomeViewModel>()..loadHomePage(),
+        child: BlocConsumer<HomeViewModel, HomeScreenState>(
+          bloc: homeViewModel,
+          listener: (context, event) {
+            if (event is NavigateState) {
+              Navigator.pushNamed(context, event.route);
+            }
+          },
+          listenWhen: (previous, current) {
+            if (current is LoadingState) {
+              return true;
+            }
+            if (current is NavigateState) {
+              return true;
+            }
+            return false;
+          },
+          builder: (context, state) {
+            if (state is SuccessState) {
+              return BuildSuccessState(state);
+            }
+            if (state is LoadingState) {
+              return const MainLoadingWidget();
+            }
+            if (state is ErrorState) {
+              return MainErrorWidget(
+                message: state.errorMessage,
+                onTryAgain: () {
+                  homeViewModel.loadHomePage();
+                },
+              );
+            }
+            return Container();
+          },
+        ),
       ),
     );
   }

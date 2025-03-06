@@ -2,9 +2,9 @@ import 'package:ecommerce_app/core/resources/color_manager.dart';
 import 'package:flutter/material.dart';
 
 class MainLoadingWidget extends StatelessWidget {
-  String? message;
+  final String? message;
 
-  MainLoadingWidget(this.message, {super.key});
+  const MainLoadingWidget({this.message, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MainLoadingWidget extends StatelessWidget {
           const SizedBox(height: 10),
           Text(
             message ?? "Loading...",
-            style: TextStyle(color: ColorManager.textColor),
+            style: const TextStyle(color: ColorManager.textColor),
           ),
         ],
       ),

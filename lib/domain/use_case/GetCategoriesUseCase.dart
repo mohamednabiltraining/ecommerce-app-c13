@@ -11,7 +11,7 @@ class GetCategoriesUseCase {
   // function injection -> setter
   GetCategoriesUseCase(this._categoriesRepo);
 
-  Future<List<Category>?> invoke() {
+  Future<List<Category>?> call() {
     // useCase-> Repository
     return _categoriesRepo.getCategories();
   }
